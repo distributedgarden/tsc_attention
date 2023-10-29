@@ -5,9 +5,9 @@ import torch.nn.functional as F
 from src.models.attention import SelfAttention
 
 
-class LSTMFCNAttention(nn.Module):
+class AttentionLSTMFCN(nn.Module):
     def __init__(self, MAX_SEQUENCE_LENGTH, NB_CLASS, NUM_CELLS=8):
-        super(LSTMFCNAttention, self).__init__()
+        super(AttentionLSTMFCN, self).__init__()
 
         # LSTM layer
         self.lstm = nn.LSTM(MAX_SEQUENCE_LENGTH, NUM_CELLS, batch_first=True)
@@ -58,5 +58,5 @@ class LSTMFCNAttention(nn.Module):
 # Example usage:
 MAX_SEQUENCE_LENGTH = 100
 NB_CLASS = 5
-model = LSTMFCNAttention(MAX_SEQUENCE_LENGTH, NB_CLASS)
+model = AttentionLSTMFCN(MAX_SEQUENCE_LENGTH, NB_CLASS)
 print(model)
