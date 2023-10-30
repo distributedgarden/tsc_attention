@@ -6,7 +6,14 @@ from src.models.attention import SelfAttention
 
 
 class AttentionLSTM(nn.Module):
-    def __init__(self, input_dim, hidden_dim, num_layers, output_dim):
+    """
+    Description:
+        - Long Short-Term Memory with self-attention
+    """
+
+    def __init__(
+        self, input_dim: int, hidden_dim: int, num_layers: int, output_dim: int
+    ):
         super(AttentionLSTM, self).__init__()
 
         self.lstm = nn.LSTM(
@@ -14,28 +21,37 @@ class AttentionLSTM(nn.Module):
         )
         self.attention = SelfAttention(hidden_dim)
 
-        # Final dense layer for classification
+        # fully connected layer
         self.fc = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x):
-        # x shape: [batch_size, seq_len, input_dim]
+        """
+        Description:
+            - forward pass
+
+        x shape: [batch_size, seq_len, input_dim]
+        """
 
         # LSTM forward pass
         lstm_out, _ = self.lstm(x)
 
-        # Self Attention on LSTM outputs
+        # self-attention
         attended, attention_weights = self.attention(lstm_out)
 
-        # Use the last time-step of the attended sequence for classification
+        # use the last time-step of the attended sequence for classification
         out = self.fc(attended[:, -1, :])
 
         return F.softmax(out, dim=1)
 
 
-# Example usage:
-input_dim = 1  # For univariate time series
-hidden_dim = 64
-num_layers = 2
-output_dim = 5  # Assuming 5 classes for classification
-model = AttentionLSTM(input_dim, hidden_dim, num_layers, output_dim)
-print(model)
+def example():
+    """
+    Description:
+        - example usage
+    """
+    input_dim = 1
+    hidden_dim = 64
+    num_layers = 2
+    output_dim = 5
+    model = AttentionLSTM(input_dim, hidden_dim, num_layers, output_dim)
+    print(model)

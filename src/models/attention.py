@@ -4,6 +4,11 @@ import torch.nn.functional as F
 
 
 class SelfAttention(nn.Module):
+    """
+    Description:
+        - self-attention
+    """
+
     def __init__(self, input_dim):
         super(SelfAttention, self).__init__()
         self.query = nn.Linear(input_dim, input_dim)
@@ -12,7 +17,12 @@ class SelfAttention(nn.Module):
         self.scale = torch.sqrt(torch.FloatTensor([input_dim]))
 
     def forward(self, x):
-        # x shape: [batch_size, seq_len, input_dim]
+        """
+        Description:
+            - forward pass
+
+        x shape: [batch_size, seq_len, input_dim]
+        """
         q = self.query(x)
         k = self.key(x)
         v = self.value(x)
