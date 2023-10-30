@@ -1,13 +1,13 @@
 # Description
 - MIT-BIH Arrhythmia Database 
     - original source: https://www.physionet.org/content/mitdb/1.0.0/
-    - alernate source: https://www.kaggle.com/datasets/shayanfazeli/heartbeat/
+    - alternate source: https://www.kaggle.com/datasets/shayanfazeli/heartbeat/
         - 109446 samples
         - categories: 5
         - sampling frequency: 125Hz 
 - PTB Diagnostic ECG Database
     - original source: https://www.physionet.org/content/ptbdb/1.0.0/ 
-    - alernate source: https://www.kaggle.com/datasets/shayanfazeli/heartbeat/
+    - alternate source: https://www.kaggle.com/datasets/shayanfazeli/heartbeat/
         - 14552 samples
         - categories: 2
         - sampling frequency: 125Hz
