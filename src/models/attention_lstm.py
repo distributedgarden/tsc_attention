@@ -42,27 +42,22 @@ class AttentionLSTM(nn.Module):
         Description:
             - The forward pass of the model.
             - Steps:
-                - the input data is passed through the LSTM layer.
-                - the output of the LSTM layer is passed through the self-attention layer.
-                - a context vector is obtained by summing over the attended outputs,
+                - the input data is passed through the LSTM layer
+                - the output of the LSTM layer is passed through the self-attention layer
+                - a context vector is obtained by summing over the attended outputs
                 - the context vector is passed through a fully connected layer
                 - the fully connected layer output is returned
 
         Args:
-            - x (Tensor): The input tensor of shape [batch_size, seq_len, input_dim].
+            - x (Tensor): input tensor; [batch_size, seq_len, input_dim].
 
         Returns:
-            - Tensor: The output tensor of shape [batch_size, output_dim]. This output is the raw logits.
-              Softmax should be applied during the evaluation phase.
+            - Tensor: output tensor of raw logits; [batch_size, output_dim].
         """
-        lstm_out, _ = self.lstm(x)  # lstm_out shape: [batch_size, seq_len, hidden_dim]
-        attended, _ = self.attention(
-            lstm_out
-        )  # attended shape: [batch_size, seq_len, hidden_dim]
-        context_vector = torch.sum(
-            attended, dim=1
-        )  # context_vector shape: [batch_size, hidden_dim]
-        out = self.fc(context_vector)  # out shape: [batch_size, output_dim]
+        lstm_out, _ = self.lstm(x)
+        attended, _ = self.attention(lstm_out)
+        context_vector = torch.sum(attended, dim=1)
+        out = self.fc(context_vector)
 
         return out
 
