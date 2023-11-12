@@ -2,35 +2,56 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torch import Tensor
+
 
 class SelfAttention(nn.Module):
     """
     Description:
-        - self-attention
+        - self-attention mechanism.
+
+    Attributes:
+        - query (nn.Linear): linear transformation for the query vector.
+        - key (nn.Linear): linear transformation for the key vector.
+        - value (nn.Linear): linear transformation for the value vector.
+
+    Args:
+        - hidden_dim (int): the dimensionality of the input and output of the self-attention mechanism.
     """
 
-    def __init__(self, input_dim):
+    def __init__(self, hidden_dim: int) -> None:
         super(SelfAttention, self).__init__()
-        self.query = nn.Linear(input_dim, input_dim)
-        self.key = nn.Linear(input_dim, input_dim)
-        self.value = nn.Linear(input_dim, input_dim)
-        self.scale = torch.sqrt(torch.FloatTensor([input_dim]))
 
-    def forward(self, x):
+        self.query = nn.Linear(hidden_dim, hidden_dim)
+        self.key = nn.Linear(hidden_dim, hidden_dim)
+        self.value = nn.Linear(hidden_dim, hidden_dim)
+
+    def forward(self, x: Tensor) -> tuple[Tensor, Tensor]:
         """
         Description:
-            - forward pass
+            - the forward pass of the self-attention mechanism.
+            - the input tensor is transformed into query, key, and value representations.
+            - attention scores are computed by performing a batch matrix multiplication between the query and the key.
+            - scores are normalized using softmax
+            - these weights are used to create a weighted sum of the value vectors
 
-        x shape: [batch_size, seq_len, input_dim]
+        Args:
+            - x (Tensor): input tensor; [batch_size, seq_len, hidden_dim].
+
+        Returns:
+            tuple[Tensor, Tensor]:
+                - attended (Tensor): the output tensor after applying attention; shape [batch_size, seq_len, hidden_dim].
+                - attention_weights (Tensor): the attention weights; shape [batch_size, seq_len, seq_len].
         """
-        q = self.query(x)
-        k = self.key(x)
-        v = self.value(x)
+        query = self.query(x)
+        key = self.key(x)
+        value = self.value(x)
 
-        attention_weights = F.softmax(q @ k.transpose(-2, -1) / self.scale, dim=-1)
-        out = attention_weights @ v
+        attention_scores = torch.bmm(query, key.transpose(1, 2))
+        attention_weights = F.softmax(attention_scores, dim=-1)
+        attended = torch.bmm(attention_weights, value)
 
-        return out, attention_weights
+        return attended, attention_weights
 
 
 class BahdanauAttention(nn.Module):
@@ -48,7 +69,7 @@ class BahdanauAttention(nn.Module):
 
     def forward(self, query, values):
         """
-        Arguments:
+        Args:
             - query shape: [batch_size, hidden_dim]
             - values shape: [batch_size, seq_len, hidden_dim]
         """
@@ -87,7 +108,7 @@ class LuongAttention(nn.Module):
         Description:
             - forward pass for Luong's Attention
 
-        Arguments:
+        Args:
             - hidden : the current decoder hidden state, shape [batch_size, hidden_dim]
             - encoder_outputs : the encoder outputs, shape [batch_size, seq_len, hidden_dim]
         """
