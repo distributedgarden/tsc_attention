@@ -31,6 +31,8 @@ class AttentionOSCNN(nn.Module):
         # fully connected layer
         self.fc = nn.Linear(256, num_classes)
 
+        self.attention_weights = None
+
     def forward(self, x):
         # convolutional layers with batch normalization and ReLU activation
         conv1_list = [F.relu(conv(x)) for conv in self.conv1_filters]
@@ -48,6 +50,8 @@ class AttentionOSCNN(nn.Module):
         # self-attention
         attended, attention_weights = self.attention(conv3_bn.transpose(1, 2))
         attended_sum = torch.sum(attended, dim=1)
+
+        self.attention_weights = attention_weights
 
         # fully connected layer
         output = self.fc(attended_sum)

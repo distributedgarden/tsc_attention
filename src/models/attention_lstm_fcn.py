@@ -39,11 +39,15 @@ class AttentionLSTMFCN(nn.Module):
         # fully connected layer
         self.fc = nn.Linear(num_cells + 128, nb_class)
 
+        self.attention_weights = None
+
     def forward(self, x):
         # LSTM with dropout forward pass
         h, _ = self.lstm(x)
         h, attention_weights = self.attention(h)
         h = self.dropout(h[:, -1, :])
+
+        self.attention_weights = attention_weights
 
         # CNN with batch-normalization forward pass
         x_permuted = x.permute(0, 2, 1)

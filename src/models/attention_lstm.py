@@ -36,6 +36,7 @@ class AttentionLSTM(nn.Module):
         )
         self.attention = SelfAttention(hidden_dim)
         self.fc = nn.Linear(hidden_dim, output_dim)
+        self.attention_weights = None
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -44,6 +45,7 @@ class AttentionLSTM(nn.Module):
             - Steps:
                 - the input data is passed through the LSTM layer
                 - the output of the LSTM layer is passed through the self-attention layer
+                - record attention weights
                 - a context vector is obtained by summing over the attended outputs
                 - the context vector is passed through a fully connected layer
                 - the fully connected layer output is returned
@@ -55,7 +57,10 @@ class AttentionLSTM(nn.Module):
             - Tensor: output tensor of raw logits; [batch_size, output_dim].
         """
         lstm_out, _ = self.lstm(x)
-        attended, _ = self.attention(lstm_out)
+        attended, attention_weights = self.attention(lstm_out)
+
+        self.attention_weights = attention_weights
+
         context_vector = torch.sum(attended, dim=1)
         out = self.fc(context_vector)
 
