@@ -52,6 +52,8 @@ class AttentionOSCNN(nn.Module):
         )
         self.bn3 = nn.BatchNorm1d(cnn_filters[2])
 
+        self.intermediate = nn.Linear(cnn_filters[2], hidden_size)
+
         self.attention = SelfAttention(hidden_size)
         self.attention_weights = None
 
@@ -80,7 +82,11 @@ class AttentionOSCNN(nn.Module):
         conv2_bn = F.relu(self.bn2(self.conv2(conv1_bn)))
         conv3_bn = F.relu(self.bn3(self.conv3(conv2_bn)))
 
-        attended, attention_weights = self.attention(conv3_bn)
+        # transform dimensions to match self-attention
+        intermediate_output = self.intermediate(conv3_bn.transpose(1, 2))
+        intermediate_output = intermediate_output.transpose(1, 2)
+
+        attended, attention_weights = self.attention(intermediate_output)
         self.attention_weights = attention_weights
 
         pooled_flat = self.avg_pool(attended).view(x.size(0), -1)
