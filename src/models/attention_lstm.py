@@ -20,22 +20,22 @@ class AttentionLSTM(nn.Module):
         - fc (nn.Linear): A fully connected layer for output.
 
     Args:
-        - input_dim (int): the number of input features.
-        - hidden_dim (int): the number of features in the hidden state of the LSTM.
+        - input_size (int): the number of input features.
+        - hidden_size (int): the number of features in the hidden state of the LSTM.
         - num_layers (int): the number of recurrent layers in the LSTM.
         - output_dim (int): the number of output features.
     """
 
     def __init__(
-        self, input_dim: int, hidden_dim: int, num_layers: int, output_dim: int
+        self, input_size: int, hidden_size: int, num_layers: int, output_dim: int
     ) -> None:
         super(AttentionLSTM, self).__init__()
 
         self.lstm = nn.LSTM(
-            input_dim, hidden_dim, num_layers=num_layers, batch_first=True
+            input_size, hidden_size, num_layers=num_layers, batch_first=True
         )
-        self.attention = SelfAttention(hidden_dim)
-        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.attention = SelfAttention(hidden_size)
+        self.fc = nn.Linear(hidden_size, output_dim)
         self.attention_weights = None
 
     def forward(self, x: Tensor) -> Tensor:

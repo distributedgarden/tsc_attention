@@ -27,7 +27,7 @@ class AttentionLSTMFCN(nn.Module):
     Args:
         input_size (int): The number of input features for the LSTM layer.
         num_classes (int): The number of output classes for classification.
-        hidden_units (int): The number of features in the hidden state of the LSTM.
+        hidden_size (int): The number of features in the hidden state of the LSTM.
         dropout_rate (float): The dropout rate for regularization.
         cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
     """
@@ -36,14 +36,15 @@ class AttentionLSTMFCN(nn.Module):
         self,
         input_size: int,
         num_classes: int,
-        hidden_units: int = 8,
+        hidden_size: int = 8,
+        num_layers: int = 1,
         dropout_rate: float = 0.8,
         cnn_filters: tuple = (128, 256, 128),
     ):
         super(AttentionLSTMFCN, self).__init__()
 
-        self.lstm = nn.LSTM(input_size, hidden_units, batch_first=True)
-        self.attention = SelfAttention(hidden_units)
+        self.lstm = nn.LSTM(input_size, hidden_size, batch_first=True)
+        self.attention = SelfAttention(hidden_size)
         self.dropout = nn.Dropout(dropout_rate)
 
         self.conv1 = nn.Conv1d(
@@ -68,7 +69,7 @@ class AttentionLSTMFCN(nn.Module):
         self.bn3 = nn.BatchNorm1d(cnn_filters[2])
 
         self.global_avg_pooling = nn.AdaptiveAvgPool1d(1)
-        self.fc = nn.Linear(hidden_units + cnn_filters[2], num_classes)
+        self.fc = nn.Linear(hidden_size + cnn_filters[2], num_classes)
 
         self.attention_weights = None
 
