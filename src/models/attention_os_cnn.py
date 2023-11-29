@@ -72,11 +72,10 @@ class AttentionOSCNN(nn.Module):
         conv2_bn = F.relu(self.bn2(self.conv2(conv1_bn)))
         conv3_bn = F.relu(self.bn3(self.conv3(conv2_bn)))
 
-        attended, attention_weights = self.attention(conv3_bn.transpose(1, 2))
-        attended_weighted_sum = torch.sum(
-            attended * attention_weights.unsqueeze(-1), dim=1
-        )
+        attention_input = conv3_bn.transpose(1, 2)
+        attended, attention_weights = self.attention(attention_input)
+        attended_flat = attended.view(attended.size(0), -1)
 
-        output = self.fc(attended_weighted_sum)
+        output = self.fc(attended_flat)
 
         return output
