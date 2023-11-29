@@ -53,11 +53,12 @@ class AttentionOSCNN(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Description:
-            Forward pass of the AttentionOSCNN model. This method first permutes the dimensions of the input tensor
-            to match the expected shape for 1D convolution, applies convolutional layers with ReLU and batch normalization,
-            then applies a self-attention mechanism.
-            The attended features are weighted and summed based on attention weights,
-            and then fed into a fully connected layer.
+            - Forward pass of the AttentionOSCNN model.
+            - Permute the dimensions of the input tensor to match the expected shape for 1D convolution
+            - Apply convolutional layers with ReLU and batch normalization,
+            - Apply self-attention
+            - Attended features are weighted and summed based on attention weights
+            - Results are fed into a fully connected layer
 
         Args:
             x (torch.Tensor): The input tensor of shape (batch_size, sequence_length, input_size).
@@ -67,20 +68,11 @@ class AttentionOSCNN(nn.Module):
         """
         x_permuted = x.permute(0, 2, 1)  # Permute to match Conv1D input
 
-        conv1_list = [F.relu(conv(x_permuted)) for conv in self.conv1_filters]
-        conv1_cat = torch.cat(conv1_list, 1)
-        conv1_bn = F.relu(self.bn1(conv1_cat))
-
-        conv2_list = [F.relu(conv(conv1_bn)) for conv in self.conv2_filters]
-        conv2_cat = torch.cat(conv2_list, 1)
-        conv2_bn = F.relu(self.bn2(conv2_cat))
-
-        conv3_list = [F.relu(conv(conv2_bn)) for conv in self.conv3_filters]
-        conv3_cat = torch.cat(conv3_list, 1)
-        conv3_bn = F.relu(self.bn3(conv3_cat))
+        conv1_bn = F.relu(self.bn1(self.conv1(x_permuted)))
+        conv2_bn = F.relu(self.bn2(self.conv2(conv1_bn)))
+        conv3_bn = F.relu(self.bn3(self.conv3(conv2_bn)))
 
         attended, attention_weights = self.attention(conv3_bn.transpose(1, 2))
-
         attended_weighted_sum = torch.sum(
             attended * attention_weights.unsqueeze(-1), dim=1
         )

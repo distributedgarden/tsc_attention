@@ -50,9 +50,11 @@ class OSCNN(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Description:
-            Forward pass of the OSCNN model. This method first permutes the dimensions of the input tensor to match
-            the expected shape for 1D convolution, applies convolutional layers with ReLU and batch normalization,
-            and then performs global average pooling. Finally, it feeds the pooled features into a fully connected layer.
+            - Forward pass of the OSCNN model.
+            - Permute the dimensions of the input tensor to match the expected shape for 1D convolution
+            - Apply convolutional layers with ReLU and batch normalization
+            - Perform global average pooling
+            - Pooled features are fed into a fully connected layer
 
         Args:
             x (torch.Tensor): The input tensor of shape (batch_size, sequence_length, input_size).
@@ -62,20 +64,11 @@ class OSCNN(nn.Module):
         """
         x_permuted = x.permute(0, 2, 1)
 
-        conv1_list = [F.relu(conv(x_permuted)) for conv in self.conv1_filters]
-        conv1_cat = torch.cat(conv1_list, 1)
-        conv1_bn = F.relu(self.bn1(conv1_cat))
+        conv1_bn = F.relu(self.bn1(self.conv1(x_permuted)))
+        conv2_bn = F.relu(self.bn2(self.conv2(conv1_bn)))
+        conv3_bn = F.relu(self.bn3(self.conv3(conv2_bn)))
 
-        conv2_list = [F.relu(conv(conv1_bn)) for conv in self.conv2_filters]
-        conv2_cat = torch.cat(conv2_list, 1)
-        conv2_bn = F.relu(self.bn2(conv2_cat))
-
-        conv3_list = [F.relu(conv(conv2_bn)) for conv in self.conv3_filters]
-        conv3_cat = torch.cat(conv3_list, 1)
-        conv3_bn = F.relu(self.bn3(conv3_cat))
-
-        pooled = self.avg_pool(conv3_bn)
-        pooled_flat = pooled.view(pooled.size(0), -1)
+        pooled_flat = self.avg_pool(conv3_bn).view(x.size(0), -1)
 
         output = self.fc(pooled_flat)
 
