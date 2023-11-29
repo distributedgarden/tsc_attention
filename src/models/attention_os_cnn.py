@@ -28,6 +28,7 @@ class AttentionOSCNN(nn.Module):
         num_classes: int,
         cnn_filters: tuple = (128, 256, 128),
         hidden_size: int = 128,
+        input_size: int = 187,
     ):
         super(AttentionOSCNN, self).__init__()
 
@@ -52,7 +53,7 @@ class AttentionOSCNN(nn.Module):
         )
         self.bn3 = nn.BatchNorm1d(cnn_filters[2])
 
-        self.intermediate = nn.Linear(cnn_filters[2], hidden_size)
+        self.intermediate = nn.Linear(input_size, hidden_size)
 
         self.attention = SelfAttention(hidden_size)
         self.attention_weights = None
