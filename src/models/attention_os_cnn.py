@@ -20,9 +20,15 @@ class AttentionOSCNN(nn.Module):
     Args:
         num_classes (int): The number of classes for classification.
         cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
+        hidden_size (int): hidden layer size
     """
 
-    def __init__(self, num_classes: int, cnn_filters: tuple = (128, 256, 128)):
+    def __init__(
+        self,
+        num_classes: int,
+        cnn_filters: tuple = (128, 256, 128),
+        hidden_size: int = 128,
+    ):
         super(AttentionOSCNN, self).__init__()
 
         self.conv1 = nn.Conv1d(
@@ -46,9 +52,11 @@ class AttentionOSCNN(nn.Module):
         )
         self.bn3 = nn.BatchNorm1d(cnn_filters[2])
 
-        self.attention = SelfAttention(cnn_filters[2])
-        self.fc = nn.Linear(cnn_filters[2], num_classes)
+        self.attention = SelfAttention(hidden_size)
         self.attention_weights = None
+
+        self.avg_pool = nn.AdaptiveAvgPool1d(1)
+        self.fc = nn.Linear(hidden_dim, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -66,16 +74,16 @@ class AttentionOSCNN(nn.Module):
         Returns:
             torch.Tensor: The output tensor of shape (batch_size, num_classes).
         """
-        x_permuted = x.permute(0, 2, 1)  # Permute to match Conv1D input
+        x_permuted = x.permute(0, 2, 1)
 
         conv1_bn = F.relu(self.bn1(self.conv1(x_permuted)))
         conv2_bn = F.relu(self.bn2(self.conv2(conv1_bn)))
         conv3_bn = F.relu(self.bn3(self.conv3(conv2_bn)))
 
-        attention_input = conv3_bn.transpose(1, 2)
-        attended, attention_weights = self.attention(attention_input)
-        attended_flat = attended.view(attended.size(0), -1)
+        attended, attention_weights = self.self_attention(conv3_bn)
+        self.attention_weights = attention_weights
 
-        output = self.fc(attended_flat)
+        pooled_flat = self.avg_pool(attended).view(x.size(0), -1)
+        output = self.fc(pooled_flat)
 
         return output
