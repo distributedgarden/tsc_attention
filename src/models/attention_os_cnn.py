@@ -56,7 +56,7 @@ class AttentionOSCNN(nn.Module):
         self.attention_weights = None
 
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
-        self.fc = nn.Linear(hidden_dim, num_classes)
+        self.fc = nn.Linear(hidden_size, num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
