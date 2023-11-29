@@ -14,8 +14,8 @@ class AttentionOSCNN(nn.Module):
         conv1, conv2, conv3 (nn.Conv1d): Convolutional layers for feature extraction.
         bn1, bn2, bn3 (nn.BatchNorm1d): Batch normalization layers corresponding to each convolutional layer.
         attention (SelfAttention): Self-attention layer for focusing on relevant features.
-        fc (nn.Linear): Fully connected layer for classification.
         attention_weights (torch.Tensor): Stores the attention weights computed during the forward pass.
+        fc (nn.Linear): Fully connected layer for classification.
 
     Args:
         num_classes (int): The number of classes for classification.
@@ -80,7 +80,7 @@ class AttentionOSCNN(nn.Module):
         conv2_bn = F.relu(self.bn2(self.conv2(conv1_bn)))
         conv3_bn = F.relu(self.bn3(self.conv3(conv2_bn)))
 
-        attended, attention_weights = self.self_attention(conv3_bn)
+        attended, attention_weights = self.attention(conv3_bn)
         self.attention_weights = attention_weights
 
         pooled_flat = self.avg_pool(attended).view(x.size(0), -1)
