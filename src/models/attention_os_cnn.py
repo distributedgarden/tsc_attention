@@ -1,20 +1,30 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from src.models.attention import SelfAttention
 
 
 class AttentionOSCNN(nn.Module):
     """
-    Description:
-        - Omni-Scale 1 Dimensional Convolutional Neural Network (OS-CNN) with Self-Attention
+    An Omni-Scale 1 Dimensional Convolutional Neural Network (OS-CNN) with Self-Attention mechanism.
+    This network uses convolutional layers with multiple filter sizes for feature extraction from time-series data,
+    combined with a self-attention layer to focus on the most relevant features.
+
+    Attributes:
+        conv1_filters (nn.ModuleList): First set of convolutional layers with varying kernel sizes.
+        conv2_filters (nn.ModuleList): Second set of convolutional layers with varying kernel sizes.
+        conv3_filters (nn.ModuleList): Third set of convolutional layers with varying kernel sizes.
+        attention (SelfAttention): Self-attention layer for focusing on relevant features.
+        fc (nn.Linear): Fully connected layer for classification.
+        attention_weights (torch.Tensor): Stores the attention weights computed during the forward pass.
+
+    Args:
+        num_classes (int): The number of classes for classification.
     """
 
-    def __init__(self, input_length, num_classes):
+    def __init__(self, num_classes: int):
         super(AttentionOSCNN, self).__init__()
 
-        # convolutional layers with multiple filter sizes
         self.conv1_filters = nn.ModuleList(
             [nn.Conv1d(1, 32, kernel_size=ks) for ks in [1, 2, 3, 5, 7, 11]]
         )
@@ -25,16 +35,20 @@ class AttentionOSCNN(nn.Module):
             [nn.Conv1d(384, 128, kernel_size=ks) for ks in [1, 2]]
         )
 
-        # self-attention layer
         self.attention = SelfAttention(256)
-
-        # fully connected layer
         self.fc = nn.Linear(256, num_classes)
-
         self.attention_weights = None
 
-    def forward(self, x):
-        # convolutional layers with batch normalization and ReLU activation
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of the AttentionOSCNN model.
+
+        Args:
+            x (torch.Tensor): The input tensor of shape (batch_size, channels, input_length).
+
+        Returns:
+            torch.Tensor: The output tensor of shape (batch_size, num_classes).
+        """
         conv1_list = [F.relu(conv(x)) for conv in self.conv1_filters]
         conv1_cat = torch.cat(conv1_list, 1)
         conv1_bn = F.relu(nn.BatchNorm1d(192)(conv1_cat))
@@ -47,22 +61,11 @@ class AttentionOSCNN(nn.Module):
         conv3_cat = torch.cat(conv3_list, 1)
         conv3_bn = F.relu(nn.BatchNorm1d(256)(conv3_cat))
 
-        # self-attention
         attended, attention_weights = self.attention(conv3_bn.transpose(1, 2))
         attended_sum = torch.sum(attended, dim=1)
 
         self.attention_weights = attention_weights
 
-        # fully connected layer
         output = self.fc(attended_sum)
 
         return output
-
-
-def example():
-    """
-    Description:
-        - example usage
-    """
-    model = AttentionOSCNN(input_length=125, num_classes=5)
-    print(model)
