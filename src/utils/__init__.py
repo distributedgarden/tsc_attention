@@ -213,7 +213,7 @@ def sample(
 
     with torch.no_grad():
         for i, (inputs, labels) in enumerate(test_loader):
-            outputs = model(inputs)
+            outputs = trained_model(inputs)
             _, predicted = torch.max(outputs.data, 1)
             correct_batch_indices = (
                 (predicted == labels).nonzero(as_tuple=False).view(-1).tolist()
