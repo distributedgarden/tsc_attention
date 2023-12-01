@@ -393,7 +393,7 @@ def generate_saliency_map(
     output = trained_model(input_tensor)
 
     output_idx = output.max(1)[1].item()
-    model.zero_grad()
+    trained_model.zero_grad()
     output[0, output_idx].backward()
     saliency = input_tensor.grad.data.abs().squeeze()
 
