@@ -273,6 +273,7 @@ def explain_instance(
     test_instance: np.ndarray,
     true_label: int,
     test_idx: int,
+    y_train: np.ndarray,
     num_features: int = 10,
 ) -> str:
     """
