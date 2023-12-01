@@ -33,7 +33,21 @@ logging.basicConfig(
 )
 
 
-def evaluate(trained_model, attention=False):
+def evaluate(
+    trained_model: nn.Module, test_loader: DataLoader, attention: bool = False
+) -> tuple:
+    """
+    Description:
+        - Evaluate the model on the test set and return various performance metrics.
+
+    Args:
+        - trained_model (nn.Module): The PyTorch model to be evaluated.
+        - test_loader (DataLoader): The DataLoader containing the test dataset.
+        - attention (bool): Flag to indicate if attention weights should be returned.
+
+    Returns:
+        - Tuple containing accuracy, precision, recall, F1 score, incorrect indexes, and attention maps.
+    """
     # evaluate
     trained_model.eval()
 
@@ -81,8 +95,20 @@ def evaluate(trained_model, attention=False):
     return accuracy, precision, recall, f1, incorrect_indexes, attention_maps
 
 
-def plot_metrics(accuracies, precisions, recalls, f1_scores, losses):
-    # plotting
+def plot_metrics(
+    accuracies: list, precisions: list, recalls: list, f1_scores: list, losses: list
+) -> None:
+    """
+    Description:
+        - Plot the accuracy, precision, recall, F1 score, and loss metrics over epochs.
+
+    Args:
+        - accuracies (list): List of accuracy scores per epoch.
+        - precisions (list): List of precision scores per epoch.
+        - recalls (list): List of recall scores per epoch.
+        - f1_scores (list): List of F1 scores per epoch.
+        - losses (list): List of loss values per epoch.
+    """
     plt.figure(figsize=(12, 8))
     plt.subplot(2, 1, 1)
     plt.plot(accuracies, label="Accuracy")
@@ -105,7 +131,17 @@ def plot_metrics(accuracies, precisions, recalls, f1_scores, losses):
     plt.show()
 
 
-def plot_incorrect_predictions(incorrect_indexes):
+def plot_incorrect_predictions(
+    incorrect_indexes: list, test_loader: DataLoader
+) -> None:
+    """
+    Description:
+        - Plot the frequency of label misclassification per epoch.
+
+    Args:
+        - incorrect_indexes (list): A list of lists, where each sublist contains indices of incorrect predictions for each epoch.
+        - test_loader (DataLoader): The DataLoader containing the test dataset.
+    """
     label_frequencies_per_epoch = []
 
     all_labels = []
@@ -138,25 +174,38 @@ def plot_incorrect_predictions(incorrect_indexes):
     plt.show()
 
 
-def visualize_model_graph(trained_model, input_tensor, file_name="model_graph"):
+def visualize_model_graph(
+    trained_model: nn.Module, input_tensor: torch.Tensor, file_name: str = "model_graph"
+) -> None:
     """
     Description:
-        - visualize the computation graph of the given model with the provided input tensor
+        - Visualize and save the computation graph of the model.
 
     Args:
-        - model: The PyTorch model to visualize.
-        - input_tensor: A tensor representing a sample input to the model.
-        - file_name: The name of the output file where the graph visualization will be saved.
+        - trained_model (nn.Module): The PyTorch model to visualize.
+        - input_tensor (torch.Tensor): A tensor representing a sample input to the model.
+        - file_name (str): The name of the output file where the graph visualization will be saved.
     """
     model_output = trained_model(input_tensor)
     graph = make_dot(model_output, params=dict(trained_model.named_parameters()))
     graph.render(file_name, format="png", cleanup=True)
 
 
-def sample(trained_model, test_loader, num_samples=5):
+def sample(
+    trained_model: nn.Module, test_loader: DataLoader, num_samples: int = 5
+) -> tuple:
     """
     Description:
-        - Sample instances to explain and examine
+        - Randomly sample a specified number of correctly and incorrectly classified instances
+          from the test data, using the predictions made by the trained model.
+
+    Args:
+        - trained_model (nn.Module): The trained model used to classify instances.
+        - test_loader (DataLoader): The DataLoader for the test set.
+        - num_samples (int): The number of instances to sample from each of the correct and incorrect classifications.
+
+    Returns:
+        - tuple: Two lists containing the indices of the sampled correct and incorrect instances, respectively.
     """
     trained_model.eval()
     correct_indices = []
@@ -192,7 +241,18 @@ def sample(trained_model, test_loader, num_samples=5):
     return sampled_correct, sampled_incorrect
 
 
-def batch_predict(trained_model, data):
+def batch_predict(trained_model: nn.Module, data: np.ndarray) -> np.ndarray:
+    """
+    Description:
+        - Make a batch prediction using the trained model.
+
+    Args:
+        - trained_model (nn.Module): The PyTorch model to use for predictions.
+        - data (np.ndarray): The input data for making predictions.
+
+    Returns:
+        - np.ndarray: The predicted probabilities for each class.
+    """
     trained_model.eval()
     data_tensor = torch.tensor(data).float().unsqueeze(2)
 
@@ -208,10 +268,27 @@ def batch_predict(trained_model, data):
 
 
 def explain_instance(
-    trained_model, explainer, test_instance, true_label, test_idx, num_features=10
-):
+    trained_model: nn.Module,
+    explainer: lime.lime_tabular.LimeTabularExplainer,
+    test_instance: np.ndarray,
+    true_label: int,
+    test_idx: int,
+    num_features: int = 10,
+) -> str:
     """
-    Explain a single instance using LIME and return the HTML explanation.
+    Description:
+        - Generate a LIME explanation for a single instance and return the HTML representation.
+
+    Args:
+        - trained_model (nn.Module): The PyTorch model to explain.
+        - explainer (LimeTabularExplainer): The LIME explainer instance.
+        - test_instance (np.ndarray): The input data instance to explain.
+        - true_label (int): The true label of the instance.
+        - test_idx (int): The index of the test instance.
+        - num_features (int): The number of features to include in the explanation.
+
+    Returns:
+        - str: The HTML representation of the explanation.
     """
     test_instance_tensor = (
         torch.tensor(test_instance).float().unsqueeze(0).unsqueeze(2)
@@ -239,7 +316,25 @@ def explain_instance(
     return explanation.as_html()
 
 
-def roc_plot(trained_model, x_data, y_data, num_classes, filename):
+def roc_plot(
+    trained_model: nn.Module,
+    x_data: np.ndarray,
+    y_data: np.ndarray,
+    num_classes: int,
+    filename: str,
+) -> None:
+    """
+    Description:
+        - Generate and save a Receiver Operating Characteristic (ROC) plot for the trained model
+          on multi-class classification.
+
+    Args:
+        - trained_model (nn.Module): The trained model used for prediction.
+        - x_data (np.ndarray): Input features for generating model predictions.
+        - y_data (np.ndarray): True labels for comparison with model predictions.
+        - num_classes (int): The number of unique classes in the classification task.
+        - filename (str): The file path (without extension) where the ROC plot will be saved.
+    """
     # probabilities for each class
     test_probabilities = np.vstack(
         [batch_predict(trained_model, x_data[i : i + 1]) for i in range(len(x_data))]
@@ -278,9 +373,19 @@ def roc_plot(trained_model, x_data, y_data, num_classes, filename):
     plt.savefig(f"{filename}.png")
 
 
-def generate_saliency_map(trained_model, input_tensor):
+def generate_saliency_map(
+    trained_model: nn.Module, input_tensor: torch.Tensor
+) -> torch.Tensor:
     """
-    Generate a saliency map for a given input tensor and model.
+    Description:
+        - Generate a saliency map for the input tensor using the trained model.
+
+    Args:
+        - trained_model (nn.Module): The PyTorch model used for generating the saliency map.
+        - input_tensor (torch.Tensor): The input data tensor for which the saliency map is generated.
+
+    Returns:
+        - torch.Tensor: The generated saliency map.
     """
     input_tensor.requires_grad_()
 
@@ -295,7 +400,16 @@ def generate_saliency_map(trained_model, input_tensor):
     return saliency
 
 
-def saliency_maps(trained_model, indexes, name):
+def saliency_maps(trained_model: nn.Module, indexes: list, name: str) -> None:
+    """
+    Description:
+        - Generate and save saliency maps for the specified instances.
+
+    Args:
+        - trained_model (nn.Module): The PyTorch model used for generating the saliency maps.
+        - indexes (list): The list of instance indices for which to generate saliency maps.
+        - name (str): name for the saved file
+    """
     for idx in indexes:
         input_tensor = X_test_tensor[idx : idx + 1]  # Selecting the instance
         saliency = generate_saliency_map(trained_model, input_tensor)
@@ -311,7 +425,20 @@ def saliency_maps(trained_model, indexes, name):
         plt.savefig(f"{name}_{idx}.png")
 
 
-def overlay_saliency_maps(trained_model, data_tensor, indexes, name):
+def overlay_saliency_maps(
+    trained_model: nn.Module, data_tensor: torch.Tensor, indexes: list, name: str
+) -> None:
+    """
+    Description:
+        - Overlay the saliency map on the original data instances and save the resulting plot.
+          This function iterates over given indexes to plot and save each instance's saliency map.
+
+    Args:
+        - trained_model (nn.Module): The trained PyTorch model to generate saliency maps.
+        - data_tensor (torch.Tensor): The tensor containing the dataset instances.
+        - indexes (list): A list of indices to generate saliency maps for.
+        - name (str): Base name for the saved plot files.
+    """
     for idx in indexes:
         # Get the original instance data and saliency map
         original_instance = data_tensor[idx].numpy().squeeze()
