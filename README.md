@@ -2,6 +2,19 @@
 
 An exploration on the effect of self-attention on an ECG time series classification task using LSTM and CNN based models
 
+# Setup
+```
+> python3 -venv env
+> source env/bin/activate
+> python3 -m pip install -r requirements.txt
+```
+
+### install pre-commit hooks
+```
+> pre-commit install
+> pre-commit autoupdate
+```
+
 
 # References
 1. Karim, F., Majumdar, S., & Darabi, H. (2019). Insights into LSTM Fully Convolutional Networks for Time Series Classification. IEEE Access, 7, 67718–67725. https://doi.org/10.1109/access.2019.2916828
