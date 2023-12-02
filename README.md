@@ -1,5 +1,4 @@
 # tsc_attention
-[![codecov](https://codecov.io/gh/username/reponame/branch/main/graph/badge.svg?token=YOUR_TOKEN)](https://codecov.io/gh/username/reponame)
 
 An exploration on the effect of self-attention on an ECG time series classification task using LSTM and CNN based models
 
