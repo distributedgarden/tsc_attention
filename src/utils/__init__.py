@@ -36,7 +36,6 @@ logging.basicConfig(
 def evaluate(
     trained_model: nn.Module,
     test_loader: DataLoader,
-    device: torch.device,
     attention: bool = False,
 ) -> tuple:
     """
