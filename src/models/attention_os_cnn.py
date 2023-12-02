@@ -21,8 +21,7 @@ class AttentionOSCNN(nn.Module):
         num_classes (int): The number of classes for classification.
         cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
         hidden_size (int): hidden layer size
-        input_size (int): sequence input size
-        intermediate_size (int): intermediate linear transform output size to align with attention dimensions
+        attention_size (int): shape of the attention matrices
     """
 
     def __init__(
@@ -30,8 +29,7 @@ class AttentionOSCNN(nn.Module):
         num_classes: int,
         cnn_filters: tuple = (128, 256, 128),
         hidden_size: int = 128,
-        input_size: int = 128,
-        intermediate_size: int = 128,
+        attention_size: int = 187,
     ):
         super(AttentionOSCNN, self).__init__()
 
@@ -56,9 +54,7 @@ class AttentionOSCNN(nn.Module):
         )
         self.bn3 = nn.BatchNorm1d(cnn_filters[2])
 
-        self.intermediate = nn.Linear(input_size, intermediate_size)
-
-        self.attention = SelfAttention(hidden_size)
+        self.attention = SelfAttention(attention_size)
         self.attention_weights = None
 
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
@@ -86,10 +82,7 @@ class AttentionOSCNN(nn.Module):
         conv2_bn = F.relu(self.bn2(self.conv2(conv1_bn)))
         conv3_bn = F.relu(self.bn3(self.conv3(conv2_bn)))
 
-        # transform dimensions to match self-attention
-        intermediate_output = self.intermediate(conv3_bn)
-
-        attended, attention_weights = self.attention(intermediate_output)
+        attended, attention_weights = self.attention(conv3_bn)
         self.attention_weights = attention_weights
 
         pooled_flat = self.avg_pool(attended).view(x.size(0), -1)
