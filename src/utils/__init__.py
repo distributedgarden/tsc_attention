@@ -477,7 +477,8 @@ def overlay_saliency_maps(
         original_instance = data_tensor[idx].numpy().squeeze()
         input_tensor = data_tensor[idx : idx + 1]
 
-        saliency = generate_saliency_map(trained_model, input_tensor).numpy()
+        saliency = generate_saliency_map(trained_model, input_tensor)
+        saliency = saliency.cpu().numpy()
 
         # Normalize the saliency map for overlay
         saliency = (saliency - saliency.min()) / (saliency.max() - saliency.min())
