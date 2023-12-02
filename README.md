@@ -9,10 +9,16 @@ An exploration on the effect of self-attention on an ECG time series classificat
 > python3 -m pip install -r requirements.txt
 ```
 
-### install pre-commit hooks
+### tests
+```
+> python3 -m pytest --cov=src --cov-report xml tests/
+```
+
+### pre-commit hooks
 ```
 > pre-commit install
 > pre-commit autoupdate
+> pre-commit run --all-files
 ```
 
 
