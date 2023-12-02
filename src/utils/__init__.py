@@ -96,7 +96,12 @@ def evaluate(
 
 
 def plot_metrics(
-    accuracies: list, precisions: list, recalls: list, f1_scores: list, losses: list
+    accuracies: list,
+    precisions: list,
+    recalls: list,
+    f1_scores: list,
+    losses: list,
+    filename: str,
 ) -> None:
     """
     Description:
@@ -108,6 +113,7 @@ def plot_metrics(
         - recalls (list): List of recall scores per epoch.
         - f1_scores (list): List of F1 scores per epoch.
         - losses (list): List of loss values per epoch.
+        - filename (str): filename to use when saving the plot
     """
     plt.figure(figsize=(12, 8))
     plt.subplot(2, 1, 1)
@@ -130,9 +136,12 @@ def plot_metrics(
     plt.tight_layout()
     plt.show()
 
+    plt.savefig(f"{filename}.png")
+    plt.close()
+
 
 def plot_incorrect_predictions(
-    incorrect_indexes: list, test_loader: DataLoader
+    incorrect_indexes: list, test_loader: DataLoader, filename: str
 ) -> None:
     """
     Description:
@@ -141,6 +150,7 @@ def plot_incorrect_predictions(
     Args:
         - incorrect_indexes (list): A list of lists, where each sublist contains indices of incorrect predictions for each epoch.
         - test_loader (DataLoader): The DataLoader containing the test dataset.
+        - filename (str): filename to use when saving the plot
     """
     label_frequencies_per_epoch = []
 
@@ -172,6 +182,9 @@ def plot_incorrect_predictions(
     plt.xticks(range(len(label_frequencies_per_epoch)))
     plt.grid(True)
     plt.show()
+
+    plt.savefig(f"{filename}.png")
+    plt.close()
 
 
 def visualize_model_graph(
@@ -372,6 +385,7 @@ def roc_plot(
     plt.show()
 
     plt.savefig(f"{filename}.png")
+    plt.close()
 
 
 def generate_saliency_map(
@@ -401,7 +415,7 @@ def generate_saliency_map(
     return saliency
 
 
-def saliency_maps(trained_model: nn.Module, indexes: list, name: str) -> None:
+def saliency_maps(trained_model: nn.Module, indexes: list, filename: str) -> None:
     """
     Description:
         - Generate and save saliency maps for the specified instances.
@@ -409,7 +423,7 @@ def saliency_maps(trained_model: nn.Module, indexes: list, name: str) -> None:
     Args:
         - trained_model (nn.Module): The PyTorch model used for generating the saliency maps.
         - indexes (list): The list of instance indices for which to generate saliency maps.
-        - name (str): name for the saved file
+        - filename (str): name for the saved file
     """
     for idx in indexes:
         input_tensor = X_test_tensor[idx : idx + 1]  # Selecting the instance
@@ -423,11 +437,12 @@ def saliency_maps(trained_model: nn.Module, indexes: list, name: str) -> None:
         plt.ylabel("Importance")
         plt.show()
 
-        plt.savefig(f"{name}_{idx}.png")
+        plt.savefig(f"{filename}_{idx}.png")
+        plt.close()
 
 
 def overlay_saliency_maps(
-    trained_model: nn.Module, data_tensor: torch.Tensor, indexes: list, name: str
+    trained_model: nn.Module, data_tensor: torch.Tensor, indexes: list, filename: str
 ) -> None:
     """
     Description:
@@ -438,7 +453,7 @@ def overlay_saliency_maps(
         - trained_model (nn.Module): The trained PyTorch model to generate saliency maps.
         - data_tensor (torch.Tensor): The tensor containing the dataset instances.
         - indexes (list): A list of indices to generate saliency maps for.
-        - name (str): Base name for the saved plot files.
+        - filename (str): Base name for the saved plot files.
     """
     for idx in indexes:
         # Get the original instance data and saliency map
@@ -465,5 +480,5 @@ def overlay_saliency_maps(
         plt.show()
 
         # Save the overlay plot
-        plt.savefig(f"saliency_overlay_{name}_{idx}.png")
+        plt.savefig(f"saliency_overlay_{filename}_{idx}.png")
         plt.close()
