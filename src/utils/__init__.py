@@ -134,10 +134,8 @@ def plot_metrics(
     plt.legend()
 
     plt.tight_layout()
-    plt.show()
-
     plt.savefig(f"{filename}.png")
-    plt.close()
+    plt.show()
 
 
 def plot_incorrect_predictions(
@@ -181,10 +179,9 @@ def plot_incorrect_predictions(
     plt.legend()
     plt.xticks(range(len(label_frequencies_per_epoch)))
     plt.grid(True)
-    plt.show()
 
     plt.savefig(f"{filename}.png")
-    plt.close()
+    plt.show()
 
 
 def visualize_model_graph(
@@ -382,10 +379,9 @@ def roc_plot(
     plt.ylabel("True Positive Rate")
     plt.title("Receiver operating characteristic for multi-class")
     plt.legend(loc="lower right")
-    plt.show()
 
     plt.savefig(f"{filename}.png")
-    plt.close()
+    plt.show()
 
 
 def generate_saliency_map(
@@ -435,10 +431,9 @@ def saliency_maps(trained_model: nn.Module, indexes: list, filename: str) -> Non
         plt.title(f"Saliency Map for Instance {idx}")
         plt.xlabel("Feature")
         plt.ylabel("Importance")
-        plt.show()
 
         plt.savefig(f"{filename}_{idx}.png")
-        plt.close()
+        plt.show()
 
 
 def overlay_saliency_maps(
@@ -477,8 +472,7 @@ def overlay_saliency_maps(
         plt.xlabel("Time Point")
         plt.ylabel("Amplitude / Importance")
         plt.legend()
-        plt.show()
 
         # Save the overlay plot
         plt.savefig(f"saliency_overlay_{filename}_{idx}.png")
-        plt.close()
+        plt.show()
