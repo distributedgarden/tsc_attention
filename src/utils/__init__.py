@@ -34,7 +34,10 @@ logging.basicConfig(
 
 
 def evaluate(
-    trained_model: nn.Module, test_loader: DataLoader, attention: bool = False
+    trained_model: nn.Module,
+    test_loader: DataLoader,
+    device: torch.device,
+    attention: bool = False,
 ) -> tuple:
     """
     Description:
@@ -59,6 +62,9 @@ def evaluate(
 
     with torch.no_grad():
         for inputs, labels in test_loader:
+            device = next(trained_model.parameters()).device
+            inputs, labels = inputs.to(device), labels.to(device)
+
             outputs = trained_model(inputs)
             _, predicted = torch.max(outputs.data, 1)
             true_labels.append(labels)
@@ -196,6 +202,9 @@ def visualize_model_graph(
         - input_tensor (torch.Tensor): A tensor representing a sample input to the model.
         - file_name (str): The name of the output file where the graph visualization will be saved.
     """
+    device = next(trained_model.parameters()).device
+    input_tensor = input_tensor.to(device)
+
     model_output = trained_model(input_tensor)
     graph = make_dot(model_output, params=dict(trained_model.named_parameters()))
     graph.render(file_name, format="png", cleanup=True)
@@ -223,6 +232,9 @@ def sample(
 
     with torch.no_grad():
         for i, (inputs, labels) in enumerate(test_loader):
+            device = next(trained_model.parameters()).device
+            inputs, labels = inputs.to(device), labels.to(device)
+
             outputs = trained_model(inputs)
             _, predicted = torch.max(outputs.data, 1)
             correct_batch_indices = (
@@ -266,8 +278,8 @@ def batch_predict(trained_model: nn.Module, data: np.ndarray) -> np.ndarray:
     trained_model.eval()
     data_tensor = torch.tensor(data).float().unsqueeze(2)
 
-    if next(trained_model.parameters()).is_cuda:
-        data_tensor = data_tensor.cuda()
+    device = next(trained_model.parameters()).device
+    data_tensor = data_tensor.to(device)
 
     with torch.no_grad():
         outputs = trained_model(data_tensor)
@@ -304,8 +316,8 @@ def explain_instance(
     test_instance_tensor = (
         torch.tensor(test_instance).float().unsqueeze(0).unsqueeze(2)
     )  # Add batch and channel dimensions
-    if next(trained_model.parameters()).is_cuda:
-        test_instance_tensor = test_instance_tensor.cuda()
+    device = next(trained_model.parameters()).device
+    test_instance_tensor = test_instance_tensor.to(device)
 
     trained_model.eval()
     with torch.no_grad():
@@ -398,6 +410,8 @@ def generate_saliency_map(
     Returns:
         - torch.Tensor: The generated saliency map.
     """
+    device = next(trained_model.parameters()).device
+    input_tensor = input_tensor.to(device)
     input_tensor.requires_grad_()
 
     # forward pass
@@ -454,6 +468,7 @@ def overlay_saliency_maps(
         # Get the original instance data and saliency map
         original_instance = data_tensor[idx].numpy().squeeze()
         input_tensor = data_tensor[idx : idx + 1]
+
         saliency = generate_saliency_map(trained_model, input_tensor).numpy()
 
         # Normalize the saliency map for overlay
