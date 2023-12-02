@@ -1,6 +1,9 @@
 # tsc_attention
 An exploration on the effect of self-attention on an ECG time series classification task using LSTM and CNN based models
 
+# coverage
+[![codecov](https://codecov.io/gh/username/reponame/branch/main/graph/badge.svg?token=YOUR_TOKEN)](https://codecov.io/gh/username/reponame)
+
 
 # References
 1. Karim, F., Majumdar, S., & Darabi, H. (2019). Insights into LSTM Fully Convolutional Networks for Time Series Classification. IEEE Access, 7, 67718–67725. https://doi.org/10.1109/access.2019.2916828
