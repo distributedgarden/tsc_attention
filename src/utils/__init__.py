@@ -414,18 +414,21 @@ def generate_saliency_map(
 
     trained_model.eval()
 
+    # disable cuDNN so backward can be called
+    torch.backends.cudnn.enabled = False
+    input_tensor.requires_grad_()
+
     # forward pass
     output = trained_model(input_tensor)
-
     output_idx = output.max(1)[1].item()
 
-    # temporarily enable training mode for backward pass
-    trained_model.train()
+    # backward pass
     trained_model.zero_grad()
     output[0, output_idx].backward()
     saliency = input_tensor.grad.data.abs().squeeze()
 
-    trained_model.eval()
+    # enable cuDNN
+    torch.backends.cudnn.enabled = True
 
     return saliency
 
