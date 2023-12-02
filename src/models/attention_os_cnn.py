@@ -21,7 +21,6 @@ class AttentionOSCNN(nn.Module):
         num_classes (int): The number of classes for classification.
         cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
         hidden_size (int): hidden layer size
-        attention_size (int): shape of the attention matrices
         dropout_rate (float): droput rate
         input_size (int): instance input size
         sequence_length (int): instance sequence length
@@ -33,7 +32,6 @@ class AttentionOSCNN(nn.Module):
         num_classes: int,
         cnn_filters: tuple = (128, 256, 128),
         hidden_size: int = 128,
-        attention_size: int = 128,
         dropout_rate: float = 0.8,
         input_size: int = 1,
         sequence_length: int = 187,
@@ -74,7 +72,7 @@ class AttentionOSCNN(nn.Module):
         self.intermediate = nn.Linear(input_size, hidden_size)
         self.dropout = nn.Dropout(dropout_rate)
 
-        self.attention = SelfAttention(attention_size)
+        self.attention = SelfAttention(hidden_size)
         self.attention_weights = None
 
         self.avg_pool = nn.AdaptiveAvgPool1d(1)

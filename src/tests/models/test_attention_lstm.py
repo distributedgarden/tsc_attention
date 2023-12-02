@@ -5,16 +5,14 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 
-from src.models.attention_lstm_fcn import (
-    AttentionLSTMFCN,
+from src.models.attention_lstm import (
+    AttentionLSTM,
 )
 
 
 @pytest.fixture
 def model_fixture(input_size, num_classes, hidden_size, num_layers):
-    return AttentionLSTMFCN(
-        input_size, num_classes, hidden_size=hidden_size, num_layers=num_layers
-    )
+    return AttentionLSTM(input_size, hidden_size, num_layers, num_classes)
 
 
 def test_output_shape(model_fixture, sample_input, batch_size, num_classes):

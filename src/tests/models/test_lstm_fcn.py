@@ -5,14 +5,14 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 
-from src.models.attention_lstm_fcn import (
-    AttentionLSTMFCN,
+from src.models.lstm_fcn import (
+    LSTMFCN,
 )
 
 
 @pytest.fixture
 def model_fixture(input_size, num_classes, hidden_size, num_layers):
-    return AttentionLSTMFCN(
+    return LSTMFCN(
         input_size, num_classes, hidden_size=hidden_size, num_layers=num_layers
     )
 
