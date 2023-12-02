@@ -22,6 +22,10 @@ class AttentionOSCNN(nn.Module):
         cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
         hidden_size (int): hidden layer size
         attention_size (int): shape of the attention matrices
+        dropout_rate (float): droput rate
+        input_size (int): instance input size
+        sequence_length (int): instance sequence length
+        batch_size (int): training batch size
     """
 
     def __init__(
@@ -29,12 +33,25 @@ class AttentionOSCNN(nn.Module):
         num_classes: int,
         cnn_filters: tuple = (128, 256, 128),
         hidden_size: int = 128,
-        attention_size: int = 187,
+        attention_size: int = 128,
+        dropout_rate: float = 0.8,
+        input_size: int = 1,
+        sequence_length: int = 187,
+        batch_size: int = 32,
     ):
         super(AttentionOSCNN, self).__init__()
 
+        self.batch_size = batch_size
+        self.sequence_length = sequence_length
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+
         self.conv1 = nn.Conv1d(
-            1, cnn_filters[0], kernel_size=8, padding="same", padding_mode="zeros"
+            input_size,
+            cnn_filters[0],
+            kernel_size=8,
+            padding="same",
+            padding_mode="zeros",
         )
         self.bn1 = nn.BatchNorm1d(cnn_filters[0])
         self.conv2 = nn.Conv1d(
@@ -54,11 +71,14 @@ class AttentionOSCNN(nn.Module):
         )
         self.bn3 = nn.BatchNorm1d(cnn_filters[2])
 
+        self.intermediate = nn.Linear(input_size, hidden_size)
+        self.dropout = nn.Dropout(dropout_rate)
+
         self.attention = SelfAttention(attention_size)
         self.attention_weights = None
 
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
-        self.fc = nn.Linear(hidden_size, num_classes)
+        self.fc = nn.Linear(hidden_size + cnn_filters[2], num_classes)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -82,10 +102,20 @@ class AttentionOSCNN(nn.Module):
         conv2_bn = F.relu(self.bn2(self.conv2(conv1_bn)))
         conv3_bn = F.relu(self.bn3(self.conv3(conv2_bn)))
 
-        attended, attention_weights = self.attention(conv3_bn)
+        c = self.avg_pool(conv3_bn)
+        pooled_flat = c.view(c.size(0), -1)
+
+        x_reshaped = x.view(-1, 1)
+        x_expanded = self.intermediate(x_reshaped)
+        x_transformed = x_expanded.view(
+            self.batch_size, self.sequence_length, self.hidden_size
+        )
+
+        attended, attention_weights = self.attention(x_transformed)
+        attended = self.dropout(attended[:, -1, :])
         self.attention_weights = attention_weights
 
-        pooled_flat = self.avg_pool(attended).view(x.size(0), -1)
-        output = self.fc(pooled_flat)
+        combined = torch.cat((attended, pooled_flat), dim=1)
+        output = self.fc(combined)
 
         return output

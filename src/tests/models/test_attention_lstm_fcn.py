@@ -1,7 +1,7 @@
 import pytest
 import torch
-from src.models.attention_os_cnn import (
-    AttentionOSCNN,
+from src.models.attention_lstm_fcn import (
+    AttentionLSTMFCN,
 )  # Replace with the actual import for your model class
 
 
@@ -13,6 +13,11 @@ def num_classes():
 @pytest.fixture
 def hidden_size():
     return 128
+
+
+@pytest.fixture
+def num_layers():
+    return 2
 
 
 @pytest.fixture
@@ -40,8 +45,10 @@ def input_size():
 
 
 @pytest.fixture
-def model_fixture(num_classes, hidden_size):
-    return AttentionOSCNN(num_classes=num_classes, attention_size=hidden_size)
+def model_fixture(input_size, num_classes, hidden_size, num_layers):
+    return AttentionLSTMFCN(
+        input_size, num_classes, hidden_size=hidden_size, num_layers=num_layers
+    )
 
 
 @pytest.fixture
