@@ -411,15 +411,21 @@ def generate_saliency_map(
     """
     device = next(trained_model.parameters()).device
     input_tensor = input_tensor.to(device)
-    input_tensor.requires_grad_()
+
+    trained_model.eval()
 
     # forward pass
     output = trained_model(input_tensor)
 
     output_idx = output.max(1)[1].item()
+
+    # temporarily enable training mode for backward pass
+    trained_model.train()
     trained_model.zero_grad()
     output[0, output_idx].backward()
     saliency = input_tensor.grad.data.abs().squeeze()
+
+    trained_model.eval()
 
     return saliency
 
