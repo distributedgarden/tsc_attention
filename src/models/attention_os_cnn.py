@@ -108,7 +108,7 @@ class AttentionOSCNN(nn.Module):
         x_reshaped = x.view(-1, 1)
         x_expanded = self.intermediate(x_reshaped)
         x_transformed = x_expanded.view(
-            self.batch_size, self.sequence_length, self.hidden_size
+            x.size(0), self.sequence_length, self.hidden_size
         )
 
         attended, attention_weights = self.attention(x_transformed)

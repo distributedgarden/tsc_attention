@@ -2,7 +2,7 @@ import pytest
 import torch
 from src.models.attention_lstm_fcn import (
     AttentionLSTMFCN,
-)  # Replace with the actual import for your model class
+)
 
 
 @pytest.fixture
