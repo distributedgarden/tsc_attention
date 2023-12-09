@@ -1,7 +1,7 @@
 # Description
 Notebook-based experiments and figure generation. `SKF` notebooks are only scoped to generate training related plots.
 
-# Experiments
+# Figures 
 - training accuracy, precision, recall, f1 score, ROC curve, label misclassification per epoch, LIME explainability on randomly selected set of correctly and incorrectly labeled instances from the test dataset, saliency instance overlay, attention weight instance overlay.
 
 # Notebooks
