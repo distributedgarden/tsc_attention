@@ -4,7 +4,7 @@ An exploration on the effect of self-attention on an ECG time series classificat
 
 # Setup
 ```
-> python3 -venv env
+> python3 -m venv env
 > source env/bin/activate
 > python3 -m pip install -r requirements.txt
 ```
