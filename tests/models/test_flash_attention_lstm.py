@@ -5,6 +5,10 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 
+from src.models.attention_lstm import (
+    FlashAttentionLSTM,
+)
+
 
 @pytest.fixture
 def device():
@@ -40,10 +44,6 @@ def dummy_dataset(sequence_length, input_size, batch_size, num_classes):
 def model_fixture(
     input_size, num_classes, hidden_size, num_heads, head_dim, num_layers, device
 ):
-    from src.models.attention_lstm import (
-        FlashAttentionLSTM,
-    )
-
     return FlashAttentionLSTM(
         input_size, hidden_size, num_layers, num_heads, head_dim, num_classes
     ).to(device)

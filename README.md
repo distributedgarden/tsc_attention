@@ -3,6 +3,8 @@
 An exploration on the effect of self-attention on an ECG time series classification task using LSTM and CNN based models
 
 # Setup
+Note: GPU required now that flash attention is integrated.
+
 ```
 > python3 -m venv env
 > source env/bin/activate
