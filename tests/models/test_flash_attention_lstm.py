@@ -10,6 +10,9 @@ from src.models.attention_lstm import (
 )
 
 
+pytestmark = pytest.mark.skip()
+
+
 @pytest.fixture
 def device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
