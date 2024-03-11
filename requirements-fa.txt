@@ -1,3 +1,0 @@
--r requirements.txt
-
-flash-attn==2.5.6
