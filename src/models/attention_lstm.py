@@ -108,7 +108,6 @@ class FlashAttentionLSTM(nn.Module):
         self.num_heads = num_heads
         self.head_dim = head_dim
         self.attn_output = None
-
         self.lstm = self.lstm.to(torch.float16)
         self.attention = self.attention.to(torch.float16)
         self.fc = self.fc.to(torch.float16)
@@ -116,37 +115,55 @@ class FlashAttentionLSTM(nn.Module):
     def forward(self, x: Tensor) -> Tensor:
         """
         Description:
-        - The forward pass of the model.
-        - Steps:
-            - the input data is passed through the LSTM layer
-            - the output of the LSTM layer is used to generate QKV tensors for Flash Attention
-            - Flash Attention is applied to the QKV tensors
-            - the attention output is saved for visualization
-            - a context vector is obtained by summing over the attended outputs
-            - the context vector is passed through a fully connected layer
-            - the fully connected layer output is returned
+            - The forward pass of the model.
+            - Steps:
+                - the input data is passed through the LSTM layer
+                - the output of the LSTM layer is used to generate QKV tensors for Flash Attention
+                - Flash Attention is applied to the QKV tensors
+                - the attention output is saved for visualization
+                - a context vector is obtained by summing over the attended outputs
+                - the context vector is passed through a fully connected layer
+                - the fully connected layer output is returned
 
         Args:
-        - x (Tensor): input tensor; [batch_size, seq_len, input_dim].
+            - x (Tensor): input tensor; [batch_size, seq_len, input_dim].
 
         Returns:
-        - Tensor: output tensor of raw logits; [batch_size, output_dim].
+            - Tensor: output tensor of raw logits; [batch_size, output_dim].
         """
+        # x: [batch_size, seq_len, input_dim]
         x = x.to(torch.float16)
+
+        # lstm_out: [batch_size, seq_len, hidden_size]
         lstm_out, _ = self.lstm(x)
 
         # generate qkv tensors for flash attention
+        # qkv: [batch_size, seq_len, num_heads * head_dim * 3]
+        #                              4 * 32 * 3 = 384
         qkv = self.attention(lstm_out)
+
+        # qkv: [batch_size, seq_len, num_heads, 3, head_dim]
         qkv = qkv.view(qkv.size(0), qkv.size(1), self.num_heads, 3, self.head_dim)
+
+        # qkv: [num_heads, batch_size, seq_len, 3, head_dim]
         qkv = qkv.permute(2, 0, 1, 3, 4)
+
+        # q, k, v: [num_heads, batch_size, seq_len, head_dim]
         q, k, v = qkv.unbind(dim=-2)
 
         # apply flash attention
+        # attn_out: [num_heads, batch_size, seq_len, head_dim]
         attn_out = flash_attn_func(q, k, v)
+
+        # self.attn_output: [batch_size, seq_len, num_heads, head_dim]
         self.attn_output = attn_out.permute(1, 2, 0, 3).contiguous()
 
         # sum over the attended outputs
+        # context_vector: [batch_size, num_heads * head_dim]
+        #                                 4 * 32 = 128
         context_vector = attn_out.sum(dim=-2).view(attn_out.size(1), -1)
+
+        # out: [batch_size, output_dim]
         out = self.fc(context_vector)
 
         return out

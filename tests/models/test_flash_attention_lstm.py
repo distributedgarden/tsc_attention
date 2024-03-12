@@ -83,6 +83,33 @@ def test_model_with_various_batch_sizes(
     ), f"Output shape for batch size {batch_size} is not as expected"
 
 
+@pytest.mark.parametrize(
+    "num_heads, head_dim",
+    [(4, 32), (8, 16), (16, 8), (2, 64)],
+    ids=["4 heads, 32 dim", "8 heads, 16 dim", "16 heads, 8 dim", "2 heads, 64 dim"],
+)
+def test_multi_head_attention_dimensions(
+    model_fixture,
+    num_classes,
+    hidden_size,
+    sequence_length,
+    input_size,
+    batch_size,
+    device,
+):
+    sample_input = (
+        torch.randn(batch_size, sequence_length, input_size)
+        .to(torch.float16)
+        .to(device)
+    )
+    output = model_fixture(sample_input)
+
+    assert output.shape == (
+        batch_size,
+        num_classes,
+    ), f"Output shape is not as expected"
+
+
 def test_model_training_loop_produces_expected_output_shape_given_expected_input(
     model_fixture,
     num_classes,
