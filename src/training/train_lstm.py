@@ -16,6 +16,7 @@ def train(
     train_loader: torch.utils.data.DataLoader,
     test_loader: torch.utils.data.DataLoader,
     device: torch.device,
+    num_epochs: int = None,
 ):
     """
     Description:
@@ -28,6 +29,7 @@ def train(
         - train_loader (torch.utils.data.DataLoader): training data loader
         - test_loader (torch.utils.data.DataLoader): test data loader
         - device (torch.device): device to use for training
+        - num_epochs (int): number of epochs to train
 
     Returns:
         - accuracies (List[float]): list of accuracy values for each epoch
@@ -46,7 +48,7 @@ def train(
     incorrect_indexes = []
 
     # train
-    num_epochs = 10
+    num_epochs = 10 if num_epochs is None else num_epochs
     for epoch in range(num_epochs):
         model.train()
         total_loss = 0
