@@ -5,24 +5,25 @@ import torch.nn.functional as F
 
 class LSTMFCN(nn.Module):
     """
-    A Hybrid Long Short-Term Memory Fully Convolutional Network (LSTM-FCN) for sequence classification.
-    This model combines LSTM layers for sequential data processing and CNN layers for feature extraction.
+    Description:
+        - A Hybrid Long Short-Term Memory Fully Convolutional Network (LSTM-FCN) for sequence classification.
+        - This model combines LSTM layers for sequential data processing and CNN layers for feature extraction.
 
     Attributes:
-        lstm (nn.LSTM): LSTM layer for sequential data processing.
-        dropout (nn.Dropout): Dropout layer for regularization.
-        conv1, conv2, conv3 (nn.Conv1d): Convolutional layers for feature extraction.
-        bn1, bn2, bn3 (nn.BatchNorm1d): Batch normalization layers corresponding to each convolutional layer.
-        global_avg_pooling (nn.AdaptiveAvgPool1d): Global average pooling layer for feature aggregation.
-        fc (nn.Linear): Fully connected layer for final classification.
+        - lstm (nn.LSTM): LSTM layer for sequential data processing.
+        - dropout (nn.Dropout): Dropout layer for regularization.
+        - conv1, conv2, conv3 (nn.Conv1d): Convolutional layers for feature extraction.
+        - bn1, bn2, bn3 (nn.BatchNorm1d): Batch normalization layers corresponding to each convolutional layer.
+        - global_avg_pooling (nn.AdaptiveAvgPool1d): Global average pooling layer for feature aggregation.
+        - fc (nn.Linear): Fully connected layer for final classification.
 
     Args:
-        input_size (int): The number of input features for the LSTM layer.
-        num_classes (int): The number of output classes for classification.
-        hidden_size (int): The number of features in the hidden state of the LSTM.
-        num_lstm_layers (int): The number of recurrent layers in the LSTM.
-        dropout (float): The dropout rate for regularization.
-        cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
+        - input_size (int): The number of input features for the LSTM layer.
+        - num_classes (int): The number of output classes for classification.
+        - hidden_size (int): The number of features in the hidden state of the LSTM.
+        - num_lstm_layers (int): The number of recurrent layers in the LSTM.
+        - dropout (float): The dropout rate for regularization.
+        - cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
     """
 
     def __init__(
@@ -67,13 +68,14 @@ class LSTMFCN(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass for the LSTMFCN model.
+        Description:
+            - Forward pass for the LSTMFCN model.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, input_size).
+            - x (torch.Tensor): Input tensor of shape (batch_size, sequence_length, input_size).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, num_classes).
+            - torch.Tensor: Output tensor of shape (batch_size, num_classes).
         """
         h, _ = self.lstm(x)
         h = self.dropout(h[:, -1, :])

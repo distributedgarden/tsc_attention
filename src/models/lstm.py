@@ -4,18 +4,19 @@ import torch.nn as nn
 
 class LSTM(nn.Module):
     """
-    A basic Long Short-Term Memory (LSTM) network for sequence modeling and classification tasks.
-    This model consists of LSTM layers followed by a fully connected layer for output.
+    Description:
+        - A basic Long Short-Term Memory (LSTM) network for sequence modeling and classification tasks.
+        - This model consists of LSTM layers followed by a fully connected layer for output.
 
     Attributes:
-        lstm (nn.LSTM): LSTM layers for processing sequential data.
-        fc (nn.Linear): A fully connected (dense) layer for output classification or regression.
+        - lstm (nn.LSTM): LSTM layers for processing sequential data.
+        - fc (nn.Linear): A fully connected (dense) layer for output classification or regression.
 
     Args:
-        input_size (int): The number of input features in each element of the sequence.
-        hidden_units (int): The number of features in the hidden state of each LSTM layer.
-        num_lstm_layers (int): The number of recurrent layers in the LSTM module.
-        num_classes (int): The number of output classes (for classification tasks) or output features (for regression tasks).
+        - input_size (int): The number of input features in each element of the sequence.
+        - hidden_units (int): The number of features in the hidden state of each LSTM layer.
+        - num_lstm_layers (int): The number of recurrent layers in the LSTM module.
+        - num_classes (int): The number of output classes (for classification tasks) or output features (for regression tasks).
     """
 
     def __init__(
@@ -33,16 +34,19 @@ class LSTM(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass of the LSTM model.
+        Description:
+            - Forward pass of the LSTM model.
 
         Args:
-            x (torch.Tensor): The input tensor of shape (batch_size, sequence_length, input_size).
+            - x (torch.Tensor): The input tensor of shape (batch_size, sequence_length, input_size).
 
         Returns:
-            torch.Tensor: The output tensor of shape (batch_size, num_classes).
+            - torch.Tensor: The output tensor of shape (batch_size, num_classes).
         """
         out, _ = self.lstm(x)
-        out = out[:, -1, :]  # Extract the output from the last time step
-        out = self.fc(out)  # Apply the fully connected layer
+
+        # Extract the output from the last time step
+        out = out[:, -1, :]
+        out = self.fc(out)
 
         return out

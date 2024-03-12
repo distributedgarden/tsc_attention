@@ -5,19 +5,20 @@ import torch.nn.functional as F
 
 class OSCNN(nn.Module):
     """
-    Omni-Scale 1 Dimensional Convolutional Neural Network (OS-CNN).
-    This model uses convolutional layers with specified kernel sizes and filters for feature extraction from time-series data,
-    followed by global average pooling and a fully connected layer for classification.
+    Description:
+        - Omni-Scale 1 Dimensional Convolutional Neural Network (OS-CNN).
+        - This model uses convolutional layers with specified kernel sizes and filters for feature extraction from time-series data,
+          followed by global average pooling and a fully connected layer for classification.
 
     Attributes:
-        conv1, conv2, conv3 (nn.Conv1d): Convolutional layers for feature extraction.
-        bn1, bn2, bn3 (nn.BatchNorm1d): Batch normalization layers corresponding to each convolutional layer.
-        avg_pool (nn.AdaptiveAvgPool1d): Global average pooling layer.
-        fc (nn.Linear): Fully connected layer for classification.
+        - conv1, conv2, conv3 (nn.Conv1d): Convolutional layers for feature extraction.
+        - bn1, bn2, bn3 (nn.BatchNorm1d): Batch normalization layers corresponding to each convolutional layer.
+        - avg_pool (nn.AdaptiveAvgPool1d): Global average pooling layer.
+        - fc (nn.Linear): Fully connected layer for classification.
 
     Args:
-        num_classes (int): The number of classes for classification.
-        cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
+        - num_classes (int): The number of classes for classification.
+        - cnn_filters (Tuple[int, int, int]): Number of filters for each convolutional layer.
     """
 
     def __init__(self, num_classes: int, cnn_filters: tuple = (128, 256, 128)):
@@ -57,10 +58,10 @@ class OSCNN(nn.Module):
             - Pooled features are fed into a fully connected layer
 
         Args:
-            x (torch.Tensor): The input tensor of shape (batch_size, sequence_length, input_size).
+            - x (torch.Tensor): The input tensor of shape (batch_size, sequence_length, input_size).
 
         Returns:
-            torch.Tensor: The output tensor of shape (batch_size, num_classes).
+            - torch.Tensor: The output tensor of shape (batch_size, num_classes).
         """
         x_permuted = x.permute(0, 2, 1)
 
