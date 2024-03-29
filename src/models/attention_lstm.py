@@ -76,7 +76,6 @@ class MultiheadAttentionLSTM(nn.Module):
         - fully connected layer
 
     Attributes:
-        - embedding (nn.Embedding): Embedding layer for input data.
         - lstm (nn.LSTM): The LSTM layer.
         - attention (nn.MultiheadAttention): The Multihead Attention layer.
         - fc (nn.Linear): A fully connected layer for output.
