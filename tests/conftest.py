@@ -79,3 +79,18 @@ def sample_input(batch_size, sequence_length, input_size):
     [batch_size, sequence_length, input_size]
     """
     return torch.randn(batch_size, sequence_length, input_size)
+
+
+@pytest.fixture
+def device():
+    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+@pytest.fixture
+def num_heads():
+    return 4
+
+
+@pytest.fixture
+def head_dim():
+    return 32

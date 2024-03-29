@@ -5,50 +5,24 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 
-from src.models.attention_os_cnn import (
-    FlashAttentionOSCNN,
+from src.models.attention_lstm import (
+    MultiheadAttentionLSTM,
 )
 
 
 @pytest.fixture
-def device():
-    return torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-
-@pytest.fixture
-def num_heads():
-    return 4
-
-
-@pytest.fixture
-def head_dim():
-    return 32
-
-
-@pytest.fixture
-def dummy_dataset(sequence_length, input_size, batch_size, num_classes):
-    """
-    Creates a dummy dataset with specified dimensions.
-    """
-    # total number of samples - make sure it's a multiple of batch_size for simplicity
-    total_samples = batch_size * 10
-
-    # create random data and labels
-    X = torch.randn(total_samples, sequence_length, input_size).to(torch.float16)
-    y = torch.randint(0, num_classes, (total_samples,))
-
-    return TensorDataset(X, y)
-
-
-@pytest.fixture
-def model_fixture(num_classes, device, num_heads, head_dim):
-    return FlashAttentionOSCNN(
-        num_classes=num_classes, num_heads=num_heads, head_dim=head_dim
+def model_fixture(input_size, num_classes, hidden_size, num_layers, num_heads, device):
+    return MultiheadAttentionLSTM(
+        input_size=input_size,
+        hidden_size=hidden_size,
+        num_layers=num_layers,
+        num_classes=num_classes,
+        num_heads=num_heads,
     ).to(device)
 
 
 def test_output_shape(model_fixture, sample_input, batch_size, num_classes, device):
-    sample_input = sample_input.to(torch.float16).to(device)
+    sample_input = sample_input.to(device)
     output = model_fixture(sample_input)
 
     assert output.shape == (batch_size, num_classes), "Output shape is not as expected"
@@ -68,11 +42,7 @@ def test_model_with_various_batch_sizes(
     batch_size,
     device,
 ):
-    sample_input = (
-        torch.randn(batch_size, sequence_length, input_size)
-        .to(torch.float16)
-        .to(device)
-    )
+    sample_input = torch.randn(batch_size, sequence_length, input_size).to(device)
     output = model_fixture(sample_input)
 
     assert output.shape == (
@@ -82,24 +52,19 @@ def test_model_with_various_batch_sizes(
 
 
 @pytest.mark.parametrize(
-    "num_heads, head_dim",
-    [(4, 32), (8, 16), (16, 8), (2, 64)],
-    ids=["4 heads, 32 dim", "8 heads, 16 dim", "16 heads, 8 dim", "2 heads, 64 dim"],
+    "num_heads",
+    [4, 8, 16, 2],
+    ids=["4 heads", "8 heads", "16 heads", "2 heads"],
 )
 def test_multi_head_attention_dimensions(
     model_fixture,
     num_classes,
-    hidden_size,
     sequence_length,
     input_size,
     batch_size,
     device,
 ):
-    sample_input = (
-        torch.randn(batch_size, sequence_length, input_size)
-        .to(torch.float16)
-        .to(device)
-    )
+    sample_input = torch.randn(batch_size, sequence_length, input_size).to(device)
     output = model_fixture(sample_input)
 
     assert output.shape == (
@@ -111,9 +76,6 @@ def test_multi_head_attention_dimensions(
 def test_model_training_loop_produces_expected_output_shape_given_expected_input(
     model_fixture,
     num_classes,
-    hidden_size,
-    sequence_length,
-    input_size,
     batch_size,
     dummy_dataset,
     device,
